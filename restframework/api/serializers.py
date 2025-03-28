@@ -4,7 +4,7 @@ from .models import User, TodoList
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email']
+        fields = '__all__'
 
 class TodoListSerializer(serializers.ModelSerializer):
     class Meta:

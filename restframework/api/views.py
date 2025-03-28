@@ -3,14 +3,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import User, TodoList
 from .serializers import UserSerializer, TodoListSerializer
+import bcrypt
 
 # User Views
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework import status
-from .models import User, TodoList
-from .serializers import UserSerializer, TodoListSerializer
-import bcrypt
 
 # User
 @api_view(['GET', 'POST'])
@@ -49,7 +44,7 @@ def user_detail(request, pk):
         return Response(serializer.data)
 
     if request.method == 'PUT':
-        serializer = UserSerializer(user, data=request.data)
+        serializer = UserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -57,7 +52,7 @@ def user_detail(request, pk):
 
     if request.method == 'DELETE':
         user.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({'message': 'User deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
     
 @api_view(['POST'])
 def user_register(request):
@@ -70,7 +65,12 @@ def user_register(request):
         "email": "john@example.com"
     }
     """
-    serializer = UserSerializer(data=request.data)
+    data = request.data.copy()
+    
+    hashed_password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt())
+    data['password'] = hashed_password.decode('utf-8')
+
+    serializer = UserSerializer(data=data)
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -92,14 +92,18 @@ def user_login(request):
         return Response({'error': 'Invalid email or password'}, status=status.HTTP_404_NOT_FOUND)
 
     if bcrypt.checkpw(request.data['password'].encode('utf-8'), user.password.encode('utf-8')):
-        return Response({'message': 'Login successful', 'user_id': user.id, 'username': user.username, 'email': user.email}, status=status.HTTP_200_OK)
+        return Response({
+            'message': 'Login successful',
+            'user_id': user.id,
+            'username': user.username,
+            'email': user.email
+        }, status=status.HTTP_200_OK)
     
     return Response({'error': 'Invalid email or password'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def user_logout(request):
     return Response({'message': 'Logout successful'}, status=status.HTTP_200_OK)
-
 
 # TodoList Views
 @api_view(['GET', 'POST'])
