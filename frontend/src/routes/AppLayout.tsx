@@ -11,7 +11,7 @@ function AppLayout() {
     <>
       <Drawer />
       <Navbar />
-      <main className="pl-15">
+      <main className=" bg-[#504B38]">
         <Outlet />
       </main>
     </>

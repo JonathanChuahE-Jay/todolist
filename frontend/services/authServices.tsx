@@ -1,6 +1,6 @@
 import axiosInstance from "../src/axios/AxiosInstance";
 import type { AxiosError } from "axios";
-import type { LoginUserType } from "../type/User";
+import type { LoginUserType } from "../types/User";
 
 export const login = async ({ email, password }: LoginUserType) => {
     try {

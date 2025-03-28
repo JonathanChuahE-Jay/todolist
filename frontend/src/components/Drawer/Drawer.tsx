@@ -8,7 +8,7 @@ const Drawer = () => {
     ];
 
     return (
-        <nav className="group fixed left-0 top-0 h-full w-[60px] hover:w-[200px] shadow-[0px_5px_15px_rgba(0,0,0,0.35)] transition-all duration-300 bg-white flex flex-col justify-between">
+        <nav className="group fixed left-0 top-0 h-full w-[60px] hover:w-[200px] shadow-[0px_5px_15px_rgba(0,0,0,0.35)] transition-all duration-300 bg-white flex flex-col justify-between z-3">
             <div>
                 <div className="flex items-center justify-center">
                     <img src="/wolf2.gif" className="h-[60px] w-full object-cover" alt="Logo" />
