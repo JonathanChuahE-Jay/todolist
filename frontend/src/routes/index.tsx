@@ -3,11 +3,23 @@ import { useLogin } from '../../hooks/queries/useAuth';
 import type { LoginUserType } from '../../types/User';
 import { formOptions, useForm } from "@tanstack/react-form";
 import { IconX } from "@tabler/icons-react"
+import Spinner from '../components/Spinner/Spinner';
+import { handleVerifyToken } from '../store/store';
 
 export const Route = createFileRoute('/')({
   component: App,
+  beforeLoad: async () => {
+  }
+  // beforeLoad: async ({ context }) => {
+  //   if (context.auth.isAuthenticated) {
+  //     if (context.auth.role === 'admin') {
+  //       throw redirect({ to: '/ad' })
+  //     } else if (context.auth.role === 'merchant') {
+  //       throw redirect({ to: '/me' })
+  //     }
+  //   }
+  // },
 });
-
 const formOpts = formOptions({
   defaultValues: {
     email: '',
@@ -19,11 +31,16 @@ function App() {
   const mutation = useLogin();
   const form = useForm({
     ...formOpts,
-    onSubmit: ({ value }) => {
-      console.log(value);
+    onSubmit: async ({ value }) => {
+      try {
+        mutation.mutateAsync(value);
+        handleVerifyToken()
+      } catch (error) {
+        alert(error)
+      }
     }
   })
-
+  
   return (
     <div className='h-[100vh] flex items-center justify-center'>
       <form
@@ -48,7 +65,7 @@ function App() {
           children={(field) => (
             <div className='flex flex-col relative'>
               <input
-                className='border rounded-md p-2 bg-[#F8F3D9]'
+                className='border rounded-md p-2 bg-[#F8F3D9] pr-18'
                 type="text"
                 name="email"
                 value={field.state.value}
@@ -58,35 +75,47 @@ function App() {
               {field.state.meta.errors ? (
                 <em className='text-red-500 text-xs mt-1'>{field.state.meta.errors.join(', ')}</em>
               ) : null}
+              {field.getMeta().isValidating && (<div className='absolute right-10 top-2'><Spinner /></div>)}
               <IconX onClick={() => field.handleChange('')} size={23} className='absolute right-2 top-2 cursor-pointer' />
             </div>
           )}
         />
-          <form.Field
-            name='password'
-            validators={{
-              onBlurAsyncDebounceMs: 500,
-              onBlurAsync: ({ value }) =>
-                !value ? "Password is required" : undefined
-            }}
-            children={(field) => (
-              <div className='flex flex-col relative'>
-                <input
-                  className='border rounded-md p-2 mt-3 bg-[#F8F3D9]'
-                  type="text"
-                  name="password"
-                  value={field.state.value}
-                  placeholder="Password"
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-                {field.state.meta.errors ? (
-                  <em className='text-red-500 text-xs'>{field.state.meta.errors.join(', ')}</em>
-                ) : null}
-                <IconX onClick={() => field.handleChange('')} size={23} className='absolute right-2 top-5 cursor-pointer' />
-              </div>
-            )}
-          />
+        <form.Field
+          name='password'
+          validators={{
+            onBlurAsync: ({ value }) =>
+              !value ? "Password is required" : undefined
+          }}
+          children={(field) => (
+            <div className='flex flex-col relative'>
+              <input
+                className='border rounded-md p-2 mt-3 bg-[#F8F3D9] pr-18'
+                type="text"
+                name="password"
+                value={field.state.value}
+                placeholder="Password"
+                onBlur={field.handleBlur}
+                onChange={(e) => field.handleChange(e.target.value)}
+              />
+              {field.state.meta.errors ? (
+                <em className='text-red-500 text-xs'>{field.state.meta.errors.join(', ')}</em>
+              ) : null}
+              {field.getMeta().isValidating && (<div className='absolute right-10 top-5'><Spinner /></div>)}
+              <IconX onClick={() => field.handleChange('')} size={23} className='absolute right-2 top-5 cursor-pointer' />
+            </div>
+          )}
+        />
+        <form.Subscribe
+          selector={(state) => state.errors}
+          children={(errors) =>
+            errors.length > 0 && (
+              <>
+              
+              </>
+            )
+          }
+        />
+         {mutation.isError && <p className='text-red-500 text-xs mt-1'>{mutation.error.response?.data?.error}</p>}
         <form.Subscribe
           selector={(state) => [state.canSubmit, state.isSubmitting]}
           children={([canSubmit, isSubmitting]) => (
