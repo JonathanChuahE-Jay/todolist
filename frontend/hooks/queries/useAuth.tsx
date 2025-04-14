@@ -17,7 +17,7 @@ export const useLogin = () => {
             localStorage.setItem("user_id", data.user_id);
         },
         onError: (error) => {
-            console.error(error.response.data);
+            console.error(error.message);
         },
     });
 };

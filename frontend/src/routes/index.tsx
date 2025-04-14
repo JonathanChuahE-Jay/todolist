@@ -34,7 +34,6 @@ function App() {
     onSubmit: async ({ value }) => {
       try {
         mutation.mutateAsync(value);
-        handleVerifyToken()
       } catch (error) {
         alert(error)
       }
@@ -115,7 +114,7 @@ function App() {
             )
           }
         />
-         {mutation.isError && <p className='text-red-500 text-xs mt-1'>{mutation.error.response?.data?.error}</p>}
+         {mutation.isError && <p className='text-red-500 text-xs mt-1'>{mutation.error.message}</p>}
         <form.Subscribe
           selector={(state) => [state.canSubmit, state.isSubmitting]}
           children={([canSubmit, isSubmitting]) => (

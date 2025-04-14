@@ -9,7 +9,7 @@ export const useRetrieveUserQuery = (id: number) => {
                 const response = await getUser({ id })
                 return response.data;
             } catch (e) {
-                console.error(error.response.data);
+                console.error(e);
             }
         }
     })
